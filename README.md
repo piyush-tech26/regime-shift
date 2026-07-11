@@ -58,7 +58,7 @@ The strategy underperforms S&P 500 on absolute returns — as any diversified st
 
 ## Live Demo
 
-**Try it live:** [regime-shift.streamlit.app](https://regime-shift.streamlit.app) *(link updates after deployment)*
+**Try it live:** [piyush-regime-shift.streamlit.app](https://piyush-regime-shift.streamlit.app) *(link updates after deployment)*
 
 
 Or run locally in 5 minutes — see [Setup & Installation](#setup--installation) below.
@@ -239,7 +239,7 @@ Complete reproduction takes about 5 minutes plus one-time API key setup.
 
 ### Prerequisites
 
-- **Python 3.11 or higher** — check with `python3 --version`
+- **Python 3.12 or higher** — check with `python3 --version`
 - **Git** — for cloning the repository
 - **FRED API key** — free, takes 30 seconds to obtain (see below)
 
