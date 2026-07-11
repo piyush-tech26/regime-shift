@@ -38,7 +38,7 @@ def run_pipeline(train_years=7,test_years=1):
     portfolio.to_csv(f"{DIR}/portfolio.csv")
     weight_history.to_csv(f"{DIR}/weights.csv")
     print("Step 5: Computing performance metrics...")
-    tear_sheet=compute_tear_sheet(portfolio)
+    tear_sheet=compute_tear_sheet(portfolio,weight_history)
     tear_sheet.to_csv(f"{DIR}/tear_sheet.csv")
     print("\nPipeline Complete")
     print(f"\nFinal Portfolio Values ($1 invested):")

@@ -27,7 +27,7 @@ def annualised_return(returns: pd.Series) -> float:
 def annualised_vol(returns: pd.Series) -> float:
     return float(returns.std()*np.sqrt(252))
 
-def compute_tear_sheet(portfolio: pd.DataFrame) -> pd.DataFrame:
+def compute_tear_sheet(portfolio: pd.DataFrame, weights_history: pd.DataFrame)->pd.DataFrame:
     columns_to_analyze = {"Strategy": portfolio["strategy_returns"],
                           "60/40 Benchmark":portfolio["benchmark_6040"],
                           "Equal Weight": portfolio["benchmark_equal"],
@@ -41,11 +41,16 @@ def compute_tear_sheet(portfolio: pd.DataFrame) -> pd.DataFrame:
         avg_annual_cost=total_cost/(len(portfolio)/252)
         tear.loc["Total Transaction Cost (%)"]=[round(total_cost*100,2),0.0,0.0,0.0]
         tear.loc["Avg Annual Drag (%)"]=[round(avg_annual_cost*100,2),0.0,0.0,0.0]
+        # Turnover analysis
+        if len(weights_history) > 0:
+            tear.loc["Avg Turnover per Rebalance (%)"] = [round(weights_history["turnover"].mean() * 100, 2), 0.0, 0.0, 0.0]
+            tear.loc["Rebalances per Year"] = [round(len(weights_history) / (len(portfolio) / 252), 1), 0.0, 0.0, 0.0]
     return tear
 if __name__ == "__main__":
     portfolio=pd.read_csv("data/raw/portfolio.csv", index_col=0,parse_dates=True)
+    weights_history=pd.read_csv("data/raw/weights.csv",index_col=0, parse_dates=True)
     print("Computing tear sheet...\n")
-    tear= compute_tear_sheet(portfolio)
+    tear= compute_tear_sheet(portfolio,weights_history)
     print(tear.to_string())
     tear.to_csv("data/raw/tear_sheet.csv")
     print("\nSaved to data/raw/tear_sheet.csv")
