@@ -10,9 +10,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 st.set_page_config(page_title="Regime-Shift Engine", page_icon="📈", layout="wide")
 
-# ══════════════════════════════════════════════════════════════
 # DATA LOADING
-# ══════════════════════════════════════════════════════════════
 @st.cache_data(show_spinner="Running pipeline — this takes roughly 2-3 minutes on first load.")
 def load():
     from pipeline import pipeline_exists, run_pipeline
@@ -38,9 +36,7 @@ def load():
 
 raw, features_df, regimes, portfolio, tear_sheet, weights = load()
 
-# ══════════════════════════════════════════════════════════════
-# CONSTANTS
-# ══════════════════════════════════════════════════════════════
+#CONSTANTS
 COLOURS = {"BULL": "#2ecc71", "BEAR": "#e67e22", "CRISIS": "#e74c3c"}
 
 ASSET_COLOURS = {
@@ -56,9 +52,7 @@ STRATEGY_COLOURS = {
     "Buy & Hold SPY": "#e74c3c"
 }
 
-# ══════════════════════════════════════════════════════════════
 # SIDEBAR
-# ══════════════════════════════════════════════════════════════
 st.sidebar.title("Regime-Shift Engine")
 st.sidebar.markdown("Multi-asset HMM-based tactical allocation")
 st.sidebar.markdown("---")
@@ -67,9 +61,31 @@ page = st.sidebar.radio(
     ["Regime Chart", "Tear Sheet", "Weights History", "Regime Statistics"]
 )
 
-# ══════════════════════════════════════════════════════════════
+
+def apply_light_theme(fig):
+    """Force all text elements to dark colors regardless of user's system theme."""
+    fig.update_layout(
+        plot_bgcolor="white",
+        paper_bgcolor="white",
+        font=dict(color="#262730"),
+        legend=dict(
+            font=dict(color="#262730"),
+            bgcolor="rgba(255,255,255,0.8)"
+        )
+    )
+    fig.update_xaxes(
+        tickfont=dict(color="#262730"),
+        title_font=dict(color="#262730"),
+        color="#262730"
+    )
+    fig.update_yaxes(
+        tickfont=dict(color="#262730"),
+        title_font=dict(color="#262730"),
+        color="#262730"
+    )
+    return fig
+
 # PAGE 1 — REGIME CHART
-# ══════════════════════════════════════════════════════════════
 if page == "Regime Chart":
     st.title("📈 Market Regime Detection")
     st.markdown("HMM-detected Bull / Bear / Crisis regimes overlaid on S&P 500 price history.")
@@ -142,11 +158,12 @@ if page == "Regime Chart":
     fig.update_layout(
         height=600, showlegend=True,
         hovermode="x unified",
-        plot_bgcolor="white", paper_bgcolor="white"
+        plot_bgcolor="white", paper_bgcolor="white",
+        font=dict(color="#262730")
     )
     fig.update_xaxes(showgrid=False)
     fig.update_yaxes(showgrid=True, gridcolor="#f0f0f0")
-    st.plotly_chart(fig, width="stretch")
+    st.plotly_chart(apply_light_theme(fig), width="stretch")
 
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -156,9 +173,7 @@ if page == "Regime Chart":
     with col3:
         st.error("🔴 CRISIS — Negative returns, high fear")
 
-# ══════════════════════════════════════════════════════════════
 # PAGE 2 — TEAR SHEET
-# ══════════════════════════════════════════════════════════════
 elif page == "Tear Sheet":
     st.title("📊 Performance Tear Sheet")
     st.markdown("Strategy vs three benchmarks across all risk-adjusted metrics.")
@@ -236,13 +251,14 @@ elif page == "Tear Sheet":
     fig2.update_layout(
         height=450, hovermode="x unified",
         plot_bgcolor="white", paper_bgcolor="white",
+        font=dict(color="#262730"),
         yaxis_title="Portfolio Value ($)",
         xaxis_title="Date",
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
     )
     fig2.update_xaxes(showgrid=False)
     fig2.update_yaxes(showgrid=True, gridcolor="#f0f0f0")
-    st.plotly_chart(fig2, width="stretch")
+    st.plotly_chart(apply_light_theme(fig2), width="stretch")
 
     st.markdown("---")
 
@@ -278,15 +294,14 @@ elif page == "Tear Sheet":
             fig_cost.update_layout(
                 height=250,
                 plot_bgcolor="white", paper_bgcolor="white",
+                font=dict(color="#262730"),
                 yaxis_title="Cost (%)",
                 showlegend=False,
                 margin=dict(t=20, b=20)
             )
-            st.plotly_chart(fig_cost, width="stretch")
+            st.plotly_chart(apply_light_theme(fig_cost), width="stretch")
 
-# ══════════════════════════════════════════════════════════════
 # PAGE 3 — WEIGHTS HISTORY
-# ══════════════════════════════════════════════════════════════
 elif page == "Weights History":
     st.title("⚖️ Portfolio Weights Over Time")
     st.markdown("How the CVXPY optimizer allocated between SPY, TLT, and GLD as regimes shifted.")
@@ -309,6 +324,7 @@ elif page == "Weights History":
         height=500,
         hovermode="x unified",
         plot_bgcolor="white", paper_bgcolor="white",
+        font=dict(color="#262730"),
         yaxis_title="Portfolio Weight (%)",
         xaxis_title="Rebalance Date",
         yaxis=dict(range=[0, 100]),
@@ -316,7 +332,7 @@ elif page == "Weights History":
     )
     fig_weights.update_xaxes(showgrid=False)
     fig_weights.update_yaxes(showgrid=True, gridcolor="#f0f0f0")
-    st.plotly_chart(fig_weights, width="stretch")
+    st.plotly_chart(apply_light_theme(fig_weights), width="stretch")
 
     st.markdown("---")
 
@@ -340,10 +356,11 @@ elif page == "Weights History":
             height=350,
             barmode="stack",
             plot_bgcolor="white", paper_bgcolor="white",
+            font=dict(color="#262730"),
             yaxis_title="Average Weight (%)",
             xaxis_title="Regime"
         )
-        st.plotly_chart(fig_bar, width="stretch")
+        st.plotly_chart(apply_light_theme(fig_bar), width="stretch")
 
     with col2:
         st.subheader("Rebalance turnover distribution")
@@ -357,10 +374,11 @@ elif page == "Weights History":
         fig_turnover.update_layout(
             height=350,
             plot_bgcolor="white", paper_bgcolor="white",
+            font=dict(color="#262730"),
             xaxis_title="Turnover per rebalance (%)",
             yaxis_title="Number of rebalances"
         )
-        st.plotly_chart(fig_turnover, width="stretch")
+        st.plotly_chart(apply_light_theme(fig_turnover), width="stretch")
 
     st.markdown("---")
 
@@ -373,9 +391,7 @@ elif page == "Weights History":
     recent["cost"] = (recent["cost"] * 10000).round(1).astype(str) + " bps"
     st.dataframe(recent, width="stretch")
 
-# ══════════════════════════════════════════════════════════════
 # PAGE 4 — REGIME STATISTICS
-# ══════════════════════════════════════════════════════════════
 elif page == "Regime Statistics":
     st.title("🔍 Regime Statistics")
     st.markdown("Distribution and characteristics of each detected regime.")
@@ -434,7 +450,8 @@ elif page == "Regime Statistics":
         height=400,
         plot_bgcolor="white",
         paper_bgcolor="white",
+        font=dict(color="#262730"),
         yaxis_title="VIX",
         boxmode="group"
     )
-    st.plotly_chart(fig4, width="stretch")
+    st.plotly_chart(apply_light_theme(fig4), width="stretch")
