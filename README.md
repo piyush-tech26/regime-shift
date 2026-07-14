@@ -3,7 +3,6 @@
 **Macro-aware tactical asset allocation using HMM regime detection and CVXPY portfolio optimization.**
 
 ![Python](https://img.shields.io/badge/python-3.11+-blue.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Streamlit](https://img.shields.io/badge/dashboard-Streamlit-red.svg)
 ![CVXPY](https://img.shields.io/badge/optimizer-CVXPY-orange.svg)
 ![Status](https://img.shields.io/badge/status-complete-brightgreen.svg)
