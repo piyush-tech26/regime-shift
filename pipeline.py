@@ -13,7 +13,7 @@ def smooth_regimes(series, window=10):
     regime_map = {"BULL": 0, "BEAR": 1, "CRISIS": 2}
     reverse_map = {0: "BULL", 1: "BEAR", 2: "CRISIS"}
     numeric = series.map(regime_map)
-    smoothed = numeric.rolling(window=window, center=True, min_periods=1).apply(lambda x: stats.mode(x, keepdims=True)[0][0], raw=True)
+    smoothed = numeric.rolling(window=window, center=False, min_periods=1).apply(lambda x: stats.mode(x, keepdims=True)[0][0], raw=True)
     return smoothed.map(reverse_map)
 def pipeline_exists() -> bool:
     required=[f"{DIR}/market_data.csv",f"{DIR}/features.csv",f"{DIR}/wf_regimes.csv",f"{DIR}/portfolio.csv",f"{DIR}/weights.csv",f"{DIR}/tear_sheet.csv"]
@@ -30,7 +30,7 @@ def run_pipeline(train_years=7,test_years=1):
     print("Step 3: Running walk_forward validation...")
     results=walk_forward_validation(features, train_years=train_years, test_years=test_years)
     regimes=combine_results(results)
-    regimes = smooth_regimes(regimes)
+    regimes=smooth_regimes(regimes)
     regimes.to_csv(f"{DIR}/wf_regimes.csv", header=["regime"])
     print("Step 4: Running optimizer backtest...")
     asset_returns=get_asset_returns(features)
