@@ -9,6 +9,7 @@ __pycache__/
 .ipynb_checkpoints/
 *.ipynb_checkpoints
 data/raw/*.csv
+!data/forzen/market_data_snapshot.parquet
 .DS_Store
 Thumbs.db
 *.swp
