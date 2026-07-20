@@ -6,7 +6,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from model.hmm_engine import RegimeHMM
 from model.regime_labeler import label_regimes, apply_labels
 from data.preprocessor import get_hmm_features
-def walk_forward_validation(features_df: pd.DataFrame, train_years: int=7, test_years: int=1):
+def walk_forward_validation(features_df: pd.DataFrame, train_years: int=7, test_years: int=1, random_state=42):
     results=[]
     dates=features_df.index
     total_days=len(features_df)
@@ -30,7 +30,7 @@ def walk_forward_validation(features_df: pd.DataFrame, train_years: int=7, test_
         print(f"Window {window_num}:")
         print(f"    Train: {train_start_date} -> {train_end_date}")
         print(f"    Train: {test_start_date} -> {test_end_date}")
-        engine=RegimeHMM(n_states=3)
+        engine=RegimeHMM(n_states=3,random_state=random_state)
         engine.fit(get_hmm_features(train_data))
         labels=label_regimes(engine, get_hmm_features(train_data))
         test_states=engine.predict(get_hmm_features(test_data))

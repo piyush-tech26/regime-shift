@@ -27,7 +27,7 @@ def annualised_return(returns: pd.Series) -> float:
 def annualised_vol(returns: pd.Series) -> float:
     return float(returns.std()*np.sqrt(252))
 
-def compute_tear_sheet(portfolio: pd.DataFrame, weights_history: pd.DataFrame)->pd.DataFrame:
+def compute_tear_sheet(portfolio: pd.DataFrame, weights_history: pd.DataFrame=None)->pd.DataFrame:
     columns_to_analyze = {"Strategy": portfolio["strategy_returns"],
                           "60/40 Benchmark":portfolio["benchmark_6040"],
                           "Equal Weight": portfolio["benchmark_equal"],
@@ -42,7 +42,7 @@ def compute_tear_sheet(portfolio: pd.DataFrame, weights_history: pd.DataFrame)->
         tear.loc["Total Transaction Cost (%)"]=[round(total_cost*100,2),0.0,0.0,0.0]
         tear.loc["Avg Annual Drag (%)"]=[round(avg_annual_cost*100,2),0.0,0.0,0.0]
         # Turnover analysis
-        if len(weights_history) > 0:
+        if weights_history is not None and len(weights_history) > 0:
             tear.loc["Avg Turnover per Rebalance (%)"] = [round(weights_history["turnover"].mean() * 100, 2), 0.0, 0.0, 0.0]
             tear.loc["Rebalances per Year"] = [round(len(weights_history) / (len(portfolio) / 252), 1), 0.0, 0.0, 0.0]
     return tear
