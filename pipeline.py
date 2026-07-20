@@ -25,48 +25,16 @@ def get_market_data(force_refresh: bool = False) -> pd.DataFrame:
     Ensures reproducibility — same data regardless of when pipeline is run.
     """
     os.makedirs(FROZEN_DIR, exist_ok=True)
-
     if os.path.exists(SNAPSHOT_FILE) and not force_refresh:
         print(f"Loading frozen market data from {SNAPSHOT_FILE}")
         df = pd.read_parquet(SNAPSHOT_FILE)
         print(f"Data range: {df.index[0].date()} to {df.index[-1].date()} ({len(df)} rows)")
         return df
-
     print("Fetching fresh market data...")
     df = fetch_all()
     df.to_parquet(SNAPSHOT_FILE)
     print(f"Snapshot saved to {SNAPSHOT_FILE}")
-    print("Commit this file to git to freeze data for reproducibility.")
     return df
-def ensemble_regimes(regime_series_list: list) -> pd.Series:
-    combined = pd.concat(regime_series_list, axis=1)
-    combined.columns = [f"seed_{i}" for i in range(len(regime_series_list))]
-    def majority_vote(row):
-        votes = row.value_counts()
-        max_count = votes.max()
-        winners = votes[votes == max_count].index.tolist()
-        if len(winners) > 1:
-            if "CRISIS" in winners:
-                return "CRISIS"
-            elif "BEAR" in winners:
-                return "BEAR"
-            else:
-                return "BULL"
-        return winners[0]
-    ensemble = combined.apply(majority_vote, axis=1)
-    ensemble.name = "regime"
-    return ensemble
-def compute_seed_agreement(regime_series_list: list) -> pd.Series:
-    """
-    Compute agreement percentage across seeds for each day.
-    Returns fraction of seeds that agreed with the majority vote.
-    """
-    combined = pd.concat(regime_series_list, axis=1)
-    combined.columns = [f"seed_{i}" for i in range(len(regime_series_list))]
-    def agreement(row):
-        votes = row.value_counts()
-        return votes.max() / len(row)
-    return combined.apply(agreement, axis=1)
 def pipeline_exists() -> bool:
     required=[f"{DIR}/market_data.csv",f"{DIR}/features.csv",f"{DIR}/wf_regimes.csv",f"{DIR}/portfolio.csv",f"{DIR}/weights.csv",f"{DIR}/tear_sheet.csv"]
     return all(os.path.exists(f) for f in required)
@@ -118,19 +86,15 @@ def run_pipeline(train_years=7,test_years=1,n_seeds=10, force_refresh_data=False
     print(f"    Mean:    {seed_df['sharpe'].mean():.3f}")
     print(f"    Std:     {seed_df['sharpe'].std():.3f}")
     print(f"    Range:   [{seed_df['sharpe'].min():.3f}, {seed_df['sharpe'].max():.3f}]")
-    
     print(f"\n  Sortino Ratio:")
     print(f"    Mean:    {seed_df['sortino'].mean():.3f}")
     print(f"    Std:     {seed_df['sortino'].std():.3f}")
-    
     print(f"\n  Max Drawdown:")
     print(f"    Mean:    {seed_df['max_dd'].mean():.2f}%")
     print(f"    Std:     {seed_df['max_dd'].std():.2f}%")
-    
     print(f"\n  Annual Return:")
     print(f"    Mean:    {seed_df['annual_return'].mean():.2f}%")
     print(f"    Std:     {seed_df['annual_return'].std():.2f}%")
-
     print(f"\nRepresentative Run (Seed {representative_seed}, median-Sharpe):")
     print(f"  Strategy Value:  ${portfolio['strategy_equity'].iloc[-1]:.2f}")
     print(f"  60/40:           ${portfolio['benchmark_6040_eq'].iloc[-1]:.2f}")
