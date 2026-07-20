@@ -40,13 +40,12 @@ Multi-seed analysis across 10 random seeds (2012-2026 out-of-sample period):
 
 | Strategy | Sharpe |
 |----------|--------|
-| **Our Strategy (mean)** | **0.725** |
+| **Strategy (mean)** | **0.725** |
 | 60/40 Portfolio | 0.724 |
 | Equal Weight | 0.656 |
 | Buy & Hold SPY | 0.792 |
 
-The strategy is statistically tied with the 60/40 benchmark. Buy & Hold SPY 
-outperforms on risk-adjusted returns during this specific bull market period. The seed-to-seed variance (Sharpe range 0.540 to 0.863) reflects HMM sensitivity to random initialization — a known limitation of unsupervised learning applied to limited financial time series.
+The strategy is statistically tied with the 60/40 benchmark. Buy & Hold SPY outperforms on risk-adjusted returns during this specific bull market period. The seed-to-seed variance (Sharpe range 0.540 to 0.863) reflects HMM sensitivity to random initialization — a known limitation of unsupervised learning applied to limited financial time series.
 
 
 ## Live Demo
@@ -556,19 +555,11 @@ For portfolio optimization — inherently convex due to quadratic variance terms
 ## Limitations section
 
 ### Seed Sensitivity
-Individual HMM seeds produce Sharpe ratios ranging from 0.540 to 0.863, 
-demonstrating meaningful sensitivity to random initialization. This is a 
-known limitation of Gaussian HMMs trained on financial data with limited 
-regime samples. Some individual walk-forward windows show degenerate solutions 
-(e.g., an entire test year labeled as a single regime). The reported mean 
-across seeds honestly averages both successful and unsuccessful runs.
+Individual HMM seeds produce Sharpe ratios ranging from 0.540 to 0.863, demonstrating meaningful sensitivity to random initialization. This is a known limitation of Gaussian HMMs trained on financial data with limited regime samples. Some individual walk-forward windows show degenerate solutions (e.g., an entire test year labeled as a single regime). The reported mean across seeds honestly averages both successful and unsuccessful runs.
 
 ### Strategy Realism
-The mean Sharpe of 0.725 is competitive with 60/40 but does not decisively 
-beat passive SPY exposure during 2012-2026. This reflects a genuine limitation 
-of tactical allocation strategies — they typically sacrifice absolute returns 
-for downside protection, which is more valuable in bear markets than the 
-bull-dominated backtest period.
+The mean Sharpe of 0.725 is competitive with 60/40 but does not decisively beat passive SPY exposure during 2012-2026. This reflects a genuine limitation 
+of tactical allocation strategies — they typically sacrifice absolute returns for downside protection, which is more valuable in bear markets than the bull-dominated backtest period.
 
 ### Future Improvements
 - K-means initialization to reduce seed variance
