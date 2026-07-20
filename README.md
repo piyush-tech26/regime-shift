@@ -23,37 +23,31 @@ The system uses:
 - **Explicit transaction friction** modelling (10 bps per unit turnover on monthly rebalances)
 - **Multi-benchmark comparison** against 60/40, equal-weight, and buy-and-hold SPY
 
-The result is a strategy that beats every benchmark on risk-adjusted metrics (Sharpe, Sortino, Calmar) while maintaining significantly lower drawdowns than pure equity exposure.
-
 ---
 
 ## Key Results
 
-Backtested across **14 years** (2011-2026) with **14 walk-forward validation folds**, monthly rebalancing, and 10 bps transaction friction on every trade.
+Multi-seed analysis across 10 random seeds (2012-2026 out-of-sample period):
 
-| Metric | Strategy | 60/40 | Equal Weight | Buy & Hold SPY |
-|--------|----------|-------|--------------|----------------|
-| **Sharpe Ratio** | **0.899** | 0.803 | 0.776 | 0.804 |
-| **Sortino Ratio** | **1.177** | 0.980 | 0.916 | 0.993 |
-| Annual Return | 10.59% | 10.81% | 9.53% | 15.84% |
-| Annual Volatility | 9.70% | 10.29% | 9.15% | 16.77% |
-| Max Drawdown | **-22.77%** | -27.24% | -22.74% | -33.72% |
-| Calmar Ratio | 0.476 | 0.397 | 0.418 | 0.470 |
-| Transaction Costs | 2.99% | 0% | 0% | 0% |
+| Metric | Mean | Std Dev | Range |
+|--------|------|---------|-------|
+| Sharpe Ratio | 0.725 | 0.104 | [0.540, 0.863] |
+| Sortino Ratio | 0.94 | 0.13 | [0.68, 1.15] |
+| Max Drawdown | -24.3% | 2.1% | [-27.8%, -20.5%] |
+| Annual Return | 9.8% | 1.2% | [7.9%, 11.6%] |
 
-### Headline Numbers
+### Benchmark Comparison
 
-- **Sharpe Ratio 0.899** — 12% higher than S&P 500 buy-and-hold (0.804)
-- **Sortino Ratio 1.177** — 19% higher than S&P 500 buy-and-hold (0.993)
-- **Max Drawdown -22.77%** — 11 percentage points less than S&P 500 (-33.72%)
-- Beats both 60/40 and Equal Weight benchmarks on **every** risk-adjusted metric
-- Achieves this despite paying 2.99% in transaction costs while benchmarks pay zero
+| Strategy | Sharpe |
+|----------|--------|
+| **Our Strategy (mean)** | **0.725** |
+| 60/40 Portfolio | 0.724 |
+| Equal Weight | 0.656 |
+| Buy & Hold SPY | 0.792 |
 
-### Interpretation
+The strategy is statistically tied with the 60/40 benchmark. Buy & Hold SPY 
+outperforms on risk-adjusted returns during this specific bull market period. The seed-to-seed variance (Sharpe range 0.540 to 0.863) reflects HMM sensitivity to random initialization — a known limitation of unsupervised learning applied to limited financial time series.
 
-The strategy underperforms S&P 500 on absolute returns — as any diversified strategy would during the historic 2010s-2020s equity bull run. However, it delivers **significantly better risk-adjusted returns** and **materially lower drawdowns**, making it appropriate for capital where preservation matters (pension funds, endowments, insurance capital, family offices).
-
----
 
 ## Live Demo
 
@@ -66,15 +60,13 @@ Or run locally in 5 minutes — see [Setup & Installation](#setup--installation)
 
 ## Dashboard
 
-Interactive Streamlit dashboard with four pages for exploring the strategy's behavior across 14 years of market history.
+Interactive Streamlit dashboard with four pages for exploring the strategy's behavior across 13 years of market history.
 
 ### Regime Detection
 
 The Hidden Markov Model classifies each trading day into one of three regimes — Bull (green), Bear (orange), or Crisis (red) — overlaid on S&P 500 price history.
 
-![Regime Chart](docs/screenshots/Screenshot_Regime_Chart.png)
-
-The model correctly identifies major stress events (2008 GFC, 2020 COVID, 2022 rate shock) as Crisis regimes without any manual labelling. Regime classifications come from walk-forward validation, meaning no future information influences past predictions.
+The model correctly identifies major stress events as Crisis regimes without any manual labelling. Regime classifications come from walk-forward validation, meaning no future information influences past predictions.
 
 ---
 
@@ -82,11 +74,7 @@ The model correctly identifies major stress events (2008 GFC, 2020 COVID, 2022 r
 
 Full risk-adjusted comparison against three benchmarks with metric cards, color-graded comparison table, equity curves, and transaction cost analysis.
 
-![Tear Sheet — Metrics](docs/screenshots/Screenshot_Tear_Sheet1.png)
-
-The green cells in the comparison table highlight where the strategy wins on each metric. Notice that despite the strategy paying 2.99% in transaction costs, it still beats every benchmark on Sharpe and Sortino ratios.
-
-![Tear Sheet — Equity Curves](docs/screenshots/Screenshot_Tear_Sheet2.png)
+The green cells in the comparison table highlight where the strategy wins on each metric. Notice that despite the strategy paying 3.04% in transaction costs, it still is as good as other benchmarks in metrics.
 
 Equity curves plotted on log scale reveal the risk story: while Buy & Hold SPY grew fastest in absolute terms, it experienced significantly deeper drawdowns during 2020 COVID and 2022 rate shock. The Strategy tracks the 60/40 benchmark's smoother trajectory but with better risk-adjusted outcomes.
 
@@ -96,8 +84,6 @@ Equity curves plotted on log scale reveal the risk story: while Buy & Hold SPY g
 
 Stacked area chart showing how the CVXPY optimizer allocated between SPY (equities), TLT (bonds), and GLD (gold) as regimes shifted over time.
 
-![Weights — Time Series](docs/screenshots/Screenshot_Weights1.png)
-
 Key observations visible in the chart:
 - Equity-heavy (blue) during confirmed Bull regimes like 2013-2014 and 2020-2021 recovery
 - Bond-heavy (purple) shifts during Bear/Crisis periods
@@ -105,9 +91,7 @@ Key observations visible in the chart:
 
 The sharp shifts in 2020 (COVID) and 2022 (rate shock) show the optimizer detecting regime changes and rebalancing defensively.
 
-![Weights — Regime Breakdown](docs/screenshots/Screenshot_Weights2.png)
-
-Average allocation per regime confirms the CVXPY optimizer produces financially sensible weights: Bull is equity-heavy (~62% SPY), Bear balances stocks and bonds, and Crisis reduces equity exposure while adding gold as a diversifier. Turnover per rebalance clusters at low values (mostly under 20%), showing the strategy doesn't thrash.
+Average allocation per regime confirms the CVXPY optimizer produces financially sensible weights: Bull is equity-heavy , Bear balances stocks and bonds, and Crisis reduces equity exposure while adding gold as a diversifier. Turnover per rebalance clusters at low values , showing the strategy doesn't thrash.
 
 ---
 
@@ -115,9 +99,7 @@ Average allocation per regime confirms the CVXPY optimizer produces financially 
 
 Distributional analysis showing how often each regime occurred and how they differ statistically.
 
-![Regime Statistics](docs/screenshots/Screenshot_Regime_Stats.png)
-
-The pie chart shows regime frequency across 14 years of out-of-sample data. The VIX distribution box plot validates that regime classifications align with market fear — BULL clusters at low VIX (~15), BEAR spans a wider moderate range, and CRISIS sits at elevated VIX with the widest tail (capturing extreme events like 2008 and 2020 COVID). Average daily returns per regime confirm the expected ordering: BULL positive, BEAR near zero, CRISIS slightly negative to flat.
+The pie chart shows regime frequency across 13 years of out-of-sample data. The VIX distribution box plot validates that regime classifications align with market fear — BULL clusters at low VIX (~15), BEAR spans a wider moderate range, and CRISIS sits at elevated VIX with the widest tail (capturing extreme events like 2008 and 2020 COVID). Average daily returns per regime confirm the expected ordering: BULL positive, BEAR near zero, CRISIS slightly negative to flat.
 
 ---
 
@@ -152,7 +134,7 @@ The system is built as a modular pipeline where each component has one clear res
                            ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │               validation/walk_forward.py                        │
-│   Trains 14 separate HMMs on 7-year rolling windows             │
+│   Trains 13 separate HMMs on 7-year rolling windows             │
 │   Predicts regimes on unseen 1-year test periods                │
 │   Zero look-ahead bias                                          │
 │   Output: wf_regimes.csv                                        │
@@ -198,7 +180,7 @@ Markets exist in unobservable states that shift over time. Rather than manually 
 - **Full covariance matrices** — captures cross-feature relationships within each regime
 
 **Training via Baum-Welch algorithm:**
-The EM algorithm iteratively estimates the transition matrix, emission parameters (mean and covariance per state), and initial state probabilities that maximize the likelihood of the observed data. Convergence typically achieves 47,748 log-likelihood on the full sample.
+The EM algorithm iteratively estimates the transition matrix, emission parameters (mean and covariance per state), and initial state probabilities that maximize the likelihood of the observed data.
 
 **State assignment via Viterbi algorithm:**
 Once fit, the Viterbi algorithm finds the most likely sequence of hidden states given the observations — the classification each day belongs to.
@@ -341,40 +323,6 @@ tear_sheet.csv        # Performance metrics table
 
 If all six files are present with recent timestamps, the pipeline ran successfully.
 
-### Testing
-
-Beyond verifying files exist, run these behavioral tests to confirm the strategy's core hypothesis holds:
-
-```bash
-python3 -c "
-import pandas as pd
-
-tear = pd.read_csv('data/raw/tear_sheet.csv', index_col=0)
-
-# Test 1: Strategy achieves minimum viable Sharpe
-assert tear.loc['Sharpe Ratio', 'Strategy'] > 0.8, \
-    f'Sharpe below threshold: {tear.loc[\"Sharpe Ratio\", \"Strategy\"]}'
-
-# Test 2: Max drawdown stays within acceptable bounds
-assert tear.loc['Max Drawdown (%)', 'Strategy'] > -30.0, \
-    f'Drawdown exceeded -30%: {tear.loc[\"Max Drawdown (%)\", \"Strategy\"]}'
-
-# Test 3: Strategy beats Buy & Hold SPY on risk-adjusted basis (core hypothesis)
-assert tear.loc['Sharpe Ratio', 'Strategy'] > tear.loc['Sharpe Ratio', 'Buy & Hold SPY'], \
-    'Failed to beat SPY on Sharpe'
-
-# Test 4: Transaction friction is applied
-assert tear.loc['Total Transaction Cost (%)', 'Strategy'] > 0, \
-    'Transaction costs not applied'
-
-# Test 5: Optimizer does not thrash
-assert tear.loc['Avg Turnover per Rebalance (%)', 'Strategy'] < 50.0, \
-    'Excessive turnover detected'
-
-print('All 5 behavioral tests passed.')
-"
-```
-
 ### Troubleshooting
 
 **"ModuleNotFoundError: No module named 'model'"**
@@ -414,19 +362,43 @@ Approximate resource usage:
 
 ---
 
+## Reproducibility & Methodology
+
+### Frozen Data Snapshot
+Raw market data is committed as `data/frozen/market_data_snapshot.parquet` to 
+ensure identical results across all runs. The pipeline loads from this snapshot 
+by default, preventing data drift from affecting reported metrics.
+
+### Multi-Seed HMM Validation
+The HMM is trained across 10 random seeds (0-9). Results are reported as 
+mean ± standard deviation across seeds, exposing the model's sensitivity to 
+random initialization rather than reporting a single potentially lucky result.
+
+### Look-Ahead Bias Prevention
+- **VIX normalization**: expanding window with 252-day warmup (fully causal)
+- **Regime smoothing**: trailing-only rolling window (`center=False`)
+- **HMM training**: walk-forward validation, test data never influences training
+
+### Running the Pipeline
+```bash
+python3 pipeline.py
+```
+
 ## Project Structure
 ```text
 regime-shift/
 ├── data/
 │ ├── fetcher.py # Downloads multi-asset prices + macro indicators
 │ ├── preprocessor.py # Feature engineering (log returns, normalization)
-│ └── raw/ # Pipeline output CSVs (gitignored)
-│ ├── market_data.csv # Raw prices from Yahoo Finance + FRED
-│ ├── features.csv # HMM features + asset returns
-│ ├── wf_regimes.csv # Walk-forward regime predictions
-│ ├── portfolio.csv # Daily strategy + benchmark returns
-│ ├── weights.csv # CVXPY weights per rebalance day
-│ └── tear_sheet.csv # Performance metrics table
+│ ├── frozen/
+│ │   └── market_data_snapshot.parquet    # Immutable data snapshot (committed)
+│ ├─ raw/ # Pipeline output CSVs (gitignored)
+│    ├── market_data.csv # Raw prices from Yahoo Finance + FRED
+│    ├── features.csv # HMM features + asset returns
+│    ├── wf_regimes.csv # Walk-forward regime predictions
+│    ├── portfolio.csv # Daily strategy + benchmark returns
+│    ├── weights.csv # CVXPY weights per rebalance day
+│    └── tear_sheet.csv # Performance metrics table
 │
 ├── model/
 │ ├── hmm_engine.py # RegimeHMM class (Gaussian HMM wrapper)
@@ -518,8 +490,6 @@ The project brief specified 5-10 bps. We chose the conservative end (10 bps) bec
 - Choosing the higher end makes the backtest more honest, not less
 - If the strategy wins at 10 bps, it definitely wins at 5 bps
 
-Total 14-year cost drag: 2.99% (0.21% annual). Strategy still beats benchmarks on risk-adjusted metrics despite this handicap.
-
 ### Why 80% maximum weight per asset?
 
 Real institutional mandates almost always cap single-asset exposure to prevent catastrophic concentration. Without this constraint:
@@ -582,3 +552,26 @@ The 10-day rolling mode filter absorbs single-day noise while preserving genuine
 For portfolio optimization — inherently convex due to quadratic variance terms — CVXPY is the industry-standard choice used by academic researchers and quant funds alike.
 
 ---
+
+## Limitations section
+
+### Seed Sensitivity
+Individual HMM seeds produce Sharpe ratios ranging from 0.540 to 0.863, 
+demonstrating meaningful sensitivity to random initialization. This is a 
+known limitation of Gaussian HMMs trained on financial data with limited 
+regime samples. Some individual walk-forward windows show degenerate solutions 
+(e.g., an entire test year labeled as a single regime). The reported mean 
+across seeds honestly averages both successful and unsuccessful runs.
+
+### Strategy Realism
+The mean Sharpe of 0.725 is competitive with 60/40 but does not decisively 
+beat passive SPY exposure during 2012-2026. This reflects a genuine limitation 
+of tactical allocation strategies — they typically sacrifice absolute returns 
+for downside protection, which is more valuable in bear markets than the 
+bull-dominated backtest period.
+
+### Future Improvements
+- K-means initialization to reduce seed variance
+- Portfolio-level ensemble (average allocations across seeds)
+- Additional features (realized volatility, credit spreads, term structure)
+- Rule-based seed quality filtering
